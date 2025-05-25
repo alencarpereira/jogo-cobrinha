@@ -25,7 +25,7 @@ let direcao = 'direita';
 let comida = { x: 0, y: 0 };
 let pontuacao = 0;
 
-let velocidade = 200;
+let velocidade = 300;
 let jogo;
 
 // Habilita/desabilita botão Iniciar baseado no input do nome
