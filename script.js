@@ -15,9 +15,10 @@ let direcao = 'direita';
 let comida = { x: 0, y: 0 };
 let pontuacao = 0;
 
-let velocidade = 200; // 👈 velocidade mais baixa (200ms por passo)
+let velocidade = 200;
 let jogo;
 
+// Gera comida em posição aleatória e que não esteja na cobra
 function gerarComida() {
     comida.x = Math.floor(Math.random() * (largura / grid)) * grid;
     comida.y = Math.floor(Math.random() * (altura / grid)) * grid;
@@ -30,6 +31,7 @@ function gerarComida() {
     }
 }
 
+// Desenha o jogo
 function desenhar() {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, largura, altura);
@@ -43,19 +45,18 @@ function desenhar() {
     }
 }
 
-function resetarJogo() {
-    cobra = [
-        { x: 8 * grid, y: 10 * grid },
-        { x: 7 * grid, y: 10 * grid },
-        { x: 6 * grid, y: 10 * grid },
-    ];
-    direcao = 'direita';
-    pontuacao = 0;
-    document.getElementById('pontuacao').textContent = 'Pontuação: 0';
-    iniciarJogo();
-    gerarComida();
+// Função chamada no game over
+function gameOver() {
+    clearInterval(jogo);
+
+    alert('Game Over! Sua pontuação: ' + pontuacao);
+
+    document.getElementById('btnIniciar').style.display = 'block';
+    document.getElementById('game').style.display = 'none';
+    document.getElementById('pontuacao').style.display = 'none';
 }
 
+// Atualiza a lógica do jogo a cada frame
 function atualizar() {
     let cabeca = { ...cobra[0] };
 
@@ -66,16 +67,16 @@ function atualizar() {
         case 'baixo': cabeca.y += grid; break;
     }
 
+    // Verifica colisão com paredes
     if (cabeca.x < 0 || cabeca.x >= largura || cabeca.y < 0 || cabeca.y >= altura) {
-        alert('Game Over! Sua pontuação: ' + pontuacao);
-        resetarJogo();
+        gameOver();
         return;
     }
 
+    // Verifica colisão com o próprio corpo
     for (let parte of cobra) {
         if (parte.x === cabeca.x && parte.y === cabeca.y) {
-            alert('Game Over! Sua pontuação: ' + pontuacao);
-            resetarJogo();
+            gameOver();
             return;
         }
     }
@@ -86,23 +87,31 @@ function atualizar() {
         pontuacao++;
         document.getElementById('pontuacao').textContent = 'Pontuação: ' + pontuacao;
         gerarComida();
-        // 🚫 velocidade não muda mais
     } else {
         cobra.pop();
     }
 }
 
+// Desenha e atualiza o jogo em loop
 function gameLoop() {
     atualizar();
     desenhar();
 }
 
+// Inicia o jogo, definindo o intervalo
 function iniciarJogo() {
     if (jogo) clearInterval(jogo);
     jogo = setInterval(gameLoop, velocidade);
 }
 
-// 🧭 Teclado
+// Ajusta tamanho do canvas para ficar responsivo
+function ajustarCanvas() {
+    const tamanho = Math.min(window.innerWidth, window.innerHeight) * 0.9;
+    canvas.style.width = tamanho + 'px';
+    canvas.style.height = tamanho + 'px';
+}
+
+// Evento para detectar teclas direcionais
 window.addEventListener('keydown', e => {
     const tecla = e.key;
     if (tecla === 'ArrowUp' && direcao !== 'baixo') direcao = 'cima';
@@ -111,7 +120,7 @@ window.addEventListener('keydown', e => {
     else if (tecla === 'ArrowRight' && direcao !== 'esquerda') direcao = 'direita';
 });
 
-// 📱 Toque
+// Eventos para toque (mobile)
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -138,7 +147,7 @@ window.addEventListener('touchend', e => {
     }
 }, false);
 
-// 📲 Botões para celular
+// Botões para celular (se existirem)
 document.getElementById('btnCima')?.addEventListener('click', () => {
     if (direcao !== 'baixo') direcao = 'cima';
 });
@@ -152,16 +161,7 @@ document.getElementById('btnDireita')?.addEventListener('click', () => {
     if (direcao !== 'esquerda') direcao = 'direita';
 });
 
-// 📐 Responsividade do canvas
-function ajustarCanvas() {
-    const tamanho = Math.min(window.innerWidth, window.innerHeight) * 0.9;
-    canvas.style.width = tamanho + 'px';
-    canvas.style.height = tamanho + 'px';
-}
-window.addEventListener('resize', ajustarCanvas);
-ajustarCanvas();
-
-// 🔄 Impedir uso deitado
+// Impede usar o jogo em modo paisagem
 function verificarOrientacao() {
     const orientacaoErrada = window.innerWidth > window.innerHeight;
     const mensagem = document.getElementById('mensagem-orientacao');
@@ -182,16 +182,31 @@ function verificarOrientacao() {
 window.addEventListener('resize', verificarOrientacao);
 window.addEventListener('load', verificarOrientacao);
 
-document.getElementById('game').style.display = 'none'; // esconde o jogo
+// Esconde o jogo e pontuação inicialmente, mostra o botão iniciar
+document.getElementById('game').style.display = 'none';
+document.getElementById('pontuacao').style.display = 'none';
+document.getElementById('btnIniciar').style.display = 'block';
 
+// Botão iniciar: reseta e começa o jogo
 document.getElementById('btnIniciar').addEventListener('click', () => {
-    document.getElementById('btnIniciar').style.display = 'none'; // esconde botão
-    document.getElementById('game').style.display = 'block';      // mostra jogo
-    document.getElementById('pontuacao').style.display = 'block'; // mostra pontuação
+    document.getElementById('btnIniciar').style.display = 'none';
+    document.getElementById('game').style.display = 'block';
+    document.getElementById('pontuacao').style.display = 'block';
+
+    cobra = [
+        { x: 8 * grid, y: 10 * grid },
+        { x: 7 * grid, y: 10 * grid },
+        { x: 6 * grid, y: 10 * grid },
+    ];
+    direcao = 'direita';
+    pontuacao = 0;
+    document.getElementById('pontuacao').textContent = 'Pontuação: 0';
+
     ajustarCanvas();
     gerarComida();
     iniciarJogo();
 });
+
 
 
 
