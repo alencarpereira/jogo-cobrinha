@@ -1,235 +1,204 @@
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+let canvas = document.getElementById("game");
+let context = canvas.getContext("2d");
+let box = 20;
+let snake = [{ x: 10 * box, y: 10 * box }];
+let direction = "right";
+let food = gerarComida();
+let score = 0;
+let jogadorNome = "";
+let velocidade = 400;
+let game;
 
-const somComer = document.getElementById('somComer');
-const somGameOver = document.getElementById('somGameOver');
-const somFundo = document.getElementById('somFundo');
+const somFundo = document.getElementById("somFundo");
+const somComer = document.getElementById("somComer");
+const somGameOver = document.getElementById("somGameOver");
 
-const inputNome = document.getElementById('inputNome');
-const btnIniciar = document.getElementById('btnIniciar');
+const btnIniciar = document.getElementById("btnIniciar");
+const pontuacaoTexto = document.getElementById("pontuacao");
+const inputNome = document.getElementById("inputNome");
+const controles = document.querySelector(".controles");
 
-somComer.volume = 0.5;
-somGameOver.volume = 0.5;
+// Controles teclado e mobile
+document.addEventListener("keydown", updateDirection);
+document.getElementById("btnCima").onclick = () => direction !== "down" && (direction = "up");
+document.getElementById("btnBaixo").onclick = () => direction !== "up" && (direction = "down");
+document.getElementById("btnEsquerda").onclick = () => direction !== "right" && (direction = "left");
+document.getElementById("btnDireita").onclick = () => direction !== "left" && (direction = "right");
 
-const grid = 20;
-const largura = canvas.width;
-const altura = canvas.height;
-
-let cobra = [
-    { x: 8 * grid, y: 10 * grid },
-    { x: 7 * grid, y: 10 * grid },
-    { x: 6 * grid, y: 10 * grid },
-];
-
-let direcao = 'direita';
-let comida = { x: 0, y: 0 };
-let pontuacao = 0;
-
-let velocidade = 300;
-let jogo;
-
-// Habilita/desabilita botão Iniciar baseado no input do nome
-inputNome.addEventListener('input', () => {
-    btnIniciar.disabled = inputNome.value.trim() === '';
+// Ativa botão iniciar após digitar nome
+inputNome.addEventListener("input", () => {
+    btnIniciar.disabled = inputNome.value.trim() === "";
 });
 
-function gerarComida() {
-    comida.x = Math.floor(Math.random() * (largura / grid)) * grid;
-    comida.y = Math.floor(Math.random() * (altura / grid)) * grid;
+btnIniciar.addEventListener("click", () => {
+    jogadorNome = inputNome.value.trim();
+    if (jogadorNome === "") return;
 
-    for (let parte of cobra) {
-        if (parte.x === comida.x && parte.y === comida.y) {
-            gerarComida();
-            break;
-        }
-    }
+    inputNome.style.display = "none";
+    btnIniciar.style.display = "none";
+    canvas.style.display = "block";
+    pontuacaoTexto.style.display = "block";
+    somFundo.play();
+
+    iniciarJogo();
+});
+
+function iniciarJogo() {
+    jogadorNome = inputNome.value.trim(); // Garante que o nome seja atualizado sempre
+
+    // Reinicia estado do jogo
+    direction = "right";
+    score = 0;
+    pontuacaoTexto.textContent = "Pontuação: 0";
+    snake = [{ x: 10 * box, y: 10 * box }];
+    food = {
+        x: Math.floor(Math.random() * 19 + 1) * box,
+        y: Math.floor(Math.random() * 19 + 1) * box,
+    };
+
+    controles.style.display = window.innerWidth <= 800 ? "flex" : "none";
+
+    if (game) clearInterval(game);
+    game = setInterval(startGame, velocidade);
 }
 
-function desenhar() {
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, largura, altura);
 
-    ctx.fillStyle = 'red';
-    ctx.fillRect(comida.x, comida.y, grid, grid);
+function updateDirection(event) {
+    if (event.keyCode == 37 && direction !== "right") direction = "left";
+    if (event.keyCode == 38 && direction !== "down") direction = "up";
+    if (event.keyCode == 39 && direction !== "left") direction = "right";
+    if (event.keyCode == 40 && direction !== "up") direction = "down";
+}
 
-    ctx.fillStyle = 'lime';
-    for (let parte of cobra) {
-        ctx.fillRect(parte.x, parte.y, grid, grid);
+function drawBackground() {
+    context.fillStyle = "#000";
+    context.fillRect(0, 0, 400, 400);
+}
+
+function drawSnake() {
+    snake.forEach((segment, i) => {
+        context.fillStyle = i === 0 ? "lime" : "green";
+        context.fillRect(segment.x, segment.y, box, box);
+    });
+}
+
+function drawFood() {
+    context.fillStyle = "red";
+    context.fillRect(food.x, food.y, box, box);
+}
+
+function gerarComida() {
+    return {
+        x: Math.floor(Math.random() * 19 + 1) * box,
+        y: Math.floor(Math.random() * 19 + 1) * box,
+    };
+}
+
+function startGame() {
+    if (
+        snake[0].x < 0 || snake[0].x >= 20 * box ||
+        snake[0].y < 0 || snake[0].y >= 20 * box
+    ) return gameOver();
+
+    for (let i = 1; i < snake.length; i++) {
+        if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+            return gameOver();
+        }
     }
+
+    drawBackground();
+    drawSnake();
+    drawFood();
+
+    let snakeX = snake[0].x;
+    let snakeY = snake[0].y;
+
+    if (direction == "right") snakeX += box;
+    if (direction == "left") snakeX -= box;
+    if (direction == "up") snakeY -= box;
+    if (direction == "down") snakeY += box;
+
+    if (snakeX == food.x && snakeY == food.y) {
+        score++;
+        pontuacaoTexto.textContent = "Pontuação: " + score;
+        somComer.play();
+        food = gerarComida();
+    } else {
+        snake.pop();
+    }
+
+    snake.unshift({ x: snakeX, y: snakeY });
 }
 
 function gameOver() {
-    clearInterval(jogo);
-
-    somGameOver.play().catch(e => {
-        console.log('Erro ao tocar somGameOver:', e);
-    });
-
-    alert('Game Over! Sua pontuação: ' + pontuacao);
-
-    document.getElementById('btnIniciar').style.display = 'block';
-    document.getElementById('game').style.display = 'none';
-    document.getElementById('pontuacao').style.display = 'none';
+    clearInterval(game);
     somFundo.pause();
-    somFundo.currentTime = 0;
+    somGameOver.play();
 
-    // Mostrar input nome novamente para nova partida
-    inputNome.style.display = 'block';
+    const pontuacaoFinal = score;
+
+    alert(`Game Over, ${jogadorNome}! Pontuação final: ${pontuacaoFinal}`);
+
+    // Envia dados para o backend
+    fetch("http://localhost:3000/api/scores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome: jogadorNome, pontuacao: pontuacaoFinal }),
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Pontuação salva!", data);
+            carregarRanking();
+        })
+        .catch(err => console.error("Erro ao salvar pontuação:", err));
+
+    // Resetar visual
+    canvas.style.display = "none";
+    pontuacaoTexto.style.display = "none";
+    controles.style.display = "none";
+
+    inputNome.style.display = "inline";
+    btnIniciar.style.display = "inline";
+    btnIniciar.disabled = inputNome.value.trim() === "";
 }
 
-function atualizar() {
-    let cabeca = { ...cobra[0] };
 
-    switch (direcao) {
-        case 'direita': cabeca.x += grid; break;
-        case 'esquerda': cabeca.x -= grid; break;
-        case 'cima': cabeca.y -= grid; break;
-        case 'baixo': cabeca.y += grid; break;
-    }
+function carregarRanking() {
+    const rankingLista = document.getElementById("ranking");
+    if (!rankingLista) return;
 
-    if (cabeca.x < 0 || cabeca.x >= largura || cabeca.y < 0 || cabeca.y >= altura) {
-        gameOver();
-        return;
-    }
+    rankingLista.innerHTML = "<li>Carregando ranking...</li>";
 
-    for (let parte of cobra) {
-        if (parte.x === cabeca.x && parte.y === cabeca.y) {
-            gameOver();
-            return;
-        }
-    }
+    fetch("http://localhost:3000/api/scores/top5")
+        .then(res => {
+            if (!res.ok) throw new Error("Erro ao carregar ranking");
+            return res.json();
+        })
+        .then(dados => {
+            if (dados.length === 0) {
+                rankingLista.innerHTML = "<li>Nenhuma pontuação ainda.</li>";
+                return;
+            }
 
-    cobra.unshift(cabeca);
-
-    if (cabeca.x === comida.x && cabeca.y === comida.y) {
-        pontuacao++;
-        document.getElementById('pontuacao').textContent = 'Pontuação: ' + pontuacao;
-
-        somComer.play().catch(e => {
-            console.log('Erro ao tocar somComer:', e);
+            rankingLista.innerHTML = "";
+            dados.forEach((item, index) => {
+                const li = document.createElement("li");
+                li.textContent = `${index + 1}. ${item.nome} - ${item.pontuacao}`;
+                rankingLista.appendChild(li);
+            });
+        })
+        .catch(err => {
+            rankingLista.innerHTML = `<li>Erro ao carregar ranking.</li>`;
+            console.error(err);
         });
-
-        gerarComida();
-    } else {
-        cobra.pop();
-    }
 }
 
-function gameLoop() {
-    atualizar();
-    desenhar();
-}
+// Carrega ranking ao iniciar
+window.addEventListener("load", carregarRanking);
 
-function iniciarJogo() {
-    if (jogo) clearInterval(jogo);
 
-    // Esconde o input nome e habilita o jogo
-    inputNome.style.display = 'none';
 
-    // Desbloqueia sons para navegadores
-    somComer.play().then(() => somComer.pause()).catch(() => { });
-    somGameOver.play().then(() => somGameOver.pause()).catch(() => { });
 
-    jogo = setInterval(gameLoop, velocidade);
-
-    somFundo.play();
-}
-
-function ajustarCanvas() {
-    const tamanho = Math.min(window.innerWidth, window.innerHeight) * 0.9;
-    canvas.style.width = tamanho + 'px';
-    canvas.style.height = tamanho + 'px';
-}
-
-window.addEventListener('keydown', e => {
-    const tecla = e.key;
-    if (tecla === 'ArrowUp' && direcao !== 'baixo') direcao = 'cima';
-    else if (tecla === 'ArrowDown' && direcao !== 'cima') direcao = 'baixo';
-    else if (tecla === 'ArrowLeft' && direcao !== 'direita') direcao = 'esquerda';
-    else if (tecla === 'ArrowRight' && direcao !== 'esquerda') direcao = 'direita';
-});
-
-let touchStartX = 0;
-let touchStartY = 0;
-
-window.addEventListener('touchstart', e => {
-    const touch = e.touches[0];
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-}, false);
-
-window.addEventListener('touchend', e => {
-    const touch = e.changedTouches[0];
-    const touchEndX = touch.clientX;
-    const touchEndY = touch.clientY;
-
-    const diffX = touchEndX - touchStartX;
-    const diffY = touchEndY - touchStartY;
-
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-        if (diffX > 30 && direcao !== 'esquerda') direcao = 'direita';
-        else if (diffX < -30 && direcao !== 'direita') direcao = 'esquerda';
-    } else {
-        if (diffY > 30 && direcao !== 'cima') direcao = 'baixo';
-        else if (diffY < -30 && direcao !== 'baixo') direcao = 'cima';
-    }
-}, false);
-
-document.getElementById('btnCima')?.addEventListener('click', () => {
-    if (direcao !== 'baixo') direcao = 'cima';
-});
-document.getElementById('btnBaixo')?.addEventListener('click', () => {
-    if (direcao !== 'cima') direcao = 'baixo';
-});
-document.getElementById('btnEsquerda')?.addEventListener('click', () => {
-    if (direcao !== 'direita') direcao = 'esquerda';
-});
-document.getElementById('btnDireita')?.addEventListener('click', () => {
-    if (direcao !== 'esquerda') direcao = 'direita';
-});
-
-function verificarOrientacao() {
-    const orientacaoErrada = window.innerWidth > window.innerHeight;
-    const mensagem = document.getElementById('mensagem-orientacao');
-    const jogo = document.getElementById('game');
-    const controles = document.querySelector('.controles');
-
-    if (orientacaoErrada) {
-        mensagem.style.display = 'block';
-        jogo.style.display = 'none';
-        if (controles) controles.style.display = 'none';
-    } else {
-        mensagem.style.display = 'none';
-        jogo.style.display = 'block';
-        if (controles) controles.style.display = '';
-        ajustarCanvas();
-    }
-}
-window.addEventListener('resize', verificarOrientacao);
-window.addEventListener('load', verificarOrientacao);
-
-document.getElementById('game').style.display = 'none';
-document.getElementById('pontuacao').style.display = 'none';
-btnIniciar.disabled = true; // começa desabilitado
-
-btnIniciar.addEventListener('click', () => {
-    document.getElementById('btnIniciar').style.display = 'none';
-    document.getElementById('game').style.display = 'block';
-    document.getElementById('pontuacao').style.display = 'block';
-
-    cobra = [
-        { x: 8 * grid, y: 10 * grid },
-        { x: 7 * grid, y: 10 * grid },
-        { x: 6 * grid, y: 10 * grid },
-    ];
-    direcao = 'direita';
-    pontuacao = 0;
-    document.getElementById('pontuacao').textContent = 'Pontuação: 0';
-
-    ajustarCanvas();
-    gerarComida();
-    iniciarJogo();
-});
 
 
 
