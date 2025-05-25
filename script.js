@@ -107,6 +107,7 @@ function iniciarJogo() {
     jogo = setInterval(gameLoop, velocidade);
 }
 
+// 🧭 Teclado
 window.addEventListener('keydown', e => {
     const tecla = e.key;
     if (tecla === 'ArrowUp' && direcao !== 'baixo') direcao = 'cima';
@@ -115,7 +116,7 @@ window.addEventListener('keydown', e => {
     else if (tecla === 'ArrowRight' && direcao !== 'esquerda') direcao = 'direita';
 });
 
-// 🧭 Controle por toque
+// 📱 Toque
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -142,7 +143,21 @@ window.addEventListener('touchend', e => {
     }
 }, false);
 
-// 🧱 Ajuste dinâmico do tamanho do canvas
+// 📲 Botões para celular
+document.getElementById('btnCima')?.addEventListener('click', () => {
+    if (direcao !== 'baixo') direcao = 'cima';
+});
+document.getElementById('btnBaixo')?.addEventListener('click', () => {
+    if (direcao !== 'cima') direcao = 'baixo';
+});
+document.getElementById('btnEsquerda')?.addEventListener('click', () => {
+    if (direcao !== 'direita') direcao = 'esquerda';
+});
+document.getElementById('btnDireita')?.addEventListener('click', () => {
+    if (direcao !== 'esquerda') direcao = 'direita';
+});
+
+// 📐 Responsividade do canvas
 function ajustarCanvas() {
     const tamanho = Math.min(window.innerWidth, window.innerHeight) * 0.9;
     canvas.style.width = tamanho + 'px';
@@ -151,21 +166,9 @@ function ajustarCanvas() {
 window.addEventListener('resize', ajustarCanvas);
 ajustarCanvas();
 
-// 🚀 Inicia o jogo
+// 🚀 Início do jogo
 gerarComida();
 iniciarJogo();
 
-document.getElementById('btnCima').addEventListener('click', () => {
-    if (direcao !== 'baixo') direcao = 'cima';
-});
-document.getElementById('btnBaixo').addEventListener('click', () => {
-    if (direcao !== 'cima') direcao = 'baixo';
-});
-document.getElementById('btnEsquerda').addEventListener('click', () => {
-    if (direcao !== 'direita') direcao = 'esquerda';
-});
-document.getElementById('btnDireita').addEventListener('click', () => {
-    if (direcao !== 'esquerda') direcao = 'direita';
-});
 
 
