@@ -10,8 +10,11 @@
 
 <body>
     <h1>Jogo da Cobrinha</h1>
+
+    <button id="btnIniciar" style="padding: 10px 20px; font-size: 18px; margin: 20px;">Iniciar Jogo</button>
     <p id="pontuacao">Pontuação: 0</p>
     <canvas id="game" width="400" height="400"></canvas>
+
 
     <div class="controles">
         <button id="btnCima">↑</button>
@@ -20,6 +23,10 @@
             <button id="btnDireita">→</button>
         </div>
         <button id="btnBaixo">↓</button>
+    </div>
+
+    <div id="mensagem-orientacao" style="display:none; text-align:center; padding: 30px;">
+        <h2>Por favor, gire seu celular para a posição vertical para jogar.</h2>
     </div>
 
 

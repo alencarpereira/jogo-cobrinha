@@ -17,6 +17,31 @@ h1 {
     font-size: 2rem;
 }
 
+#btnIniciar {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 20px;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    margin: 20px auto;
+    display: block;
+}
+
+#btnIniciar:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+#btnIniciar:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+
 #pontuacao {
     margin: 10px 0;
     font-size: 1.2rem;
@@ -53,7 +78,7 @@ canvas {
 }
 
 /* Mostrar controles só em telas pequenas */
-@media (max-width: 600px) {
+@media (max-width: 800px) {
     .controles {
         display: flex;
     }

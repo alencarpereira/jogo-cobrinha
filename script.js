@@ -15,7 +15,7 @@ let direcao = 'direita';
 let comida = { x: 0, y: 0 };
 let pontuacao = 0;
 
-let velocidade = 100;
+let velocidade = 200; // 👈 velocidade mais baixa (200ms por passo)
 let jogo;
 
 function gerarComida() {
@@ -51,7 +51,6 @@ function resetarJogo() {
     ];
     direcao = 'direita';
     pontuacao = 0;
-    velocidade = 100;
     document.getElementById('pontuacao').textContent = 'Pontuação: 0';
     iniciarJogo();
     gerarComida();
@@ -87,11 +86,7 @@ function atualizar() {
         pontuacao++;
         document.getElementById('pontuacao').textContent = 'Pontuação: ' + pontuacao;
         gerarComida();
-
-        if (pontuacao % 5 === 0 && velocidade > 40) {
-            velocidade -= 10;
-            iniciarJogo();
-        }
+        // 🚫 velocidade não muda mais
     } else {
         cobra.pop();
     }
@@ -166,9 +161,39 @@ function ajustarCanvas() {
 window.addEventListener('resize', ajustarCanvas);
 ajustarCanvas();
 
-// 🚀 Início do jogo
-gerarComida();
-iniciarJogo();
+// 🔄 Impedir uso deitado
+function verificarOrientacao() {
+    const orientacaoErrada = window.innerWidth > window.innerHeight;
+    const mensagem = document.getElementById('mensagem-orientacao');
+    const jogo = document.getElementById('game');
+    const controles = document.querySelector('.controles');
+
+    if (orientacaoErrada) {
+        mensagem.style.display = 'block';
+        jogo.style.display = 'none';
+        if (controles) controles.style.display = 'none';
+    } else {
+        mensagem.style.display = 'none';
+        jogo.style.display = 'block';
+        if (controles) controles.style.display = '';
+        ajustarCanvas();
+    }
+}
+window.addEventListener('resize', verificarOrientacao);
+window.addEventListener('load', verificarOrientacao);
+
+document.getElementById('game').style.display = 'none'; // esconde o jogo
+
+document.getElementById('btnIniciar').addEventListener('click', () => {
+    document.getElementById('btnIniciar').style.display = 'none'; // esconde botão
+    document.getElementById('game').style.display = 'block';      // mostra jogo
+    document.getElementById('pontuacao').style.display = 'block'; // mostra pontuação
+    ajustarCanvas();
+    gerarComida();
+    iniciarJogo();
+});
+
+
 
 
 
