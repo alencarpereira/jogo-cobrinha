@@ -51,7 +51,7 @@ function resetarJogo() {
     ];
     direcao = 'direita';
     pontuacao = 0;
-    velocidade = 300;
+    velocidade = 100;
     document.getElementById('pontuacao').textContent = 'Pontuação: 0';
     iniciarJogo();
     gerarComida();
@@ -61,33 +61,20 @@ function atualizar() {
     let cabeca = { ...cobra[0] };
 
     switch (direcao) {
-        case 'direita':
-            cabeca.x += grid;
-            break;
-        case 'esquerda':
-            cabeca.x -= grid;
-            break;
-        case 'cima':
-            cabeca.y -= grid;
-            break;
-        case 'baixo':
-            cabeca.y += grid;
-            break;
+        case 'direita': cabeca.x += grid; break;
+        case 'esquerda': cabeca.x -= grid; break;
+        case 'cima': cabeca.y -= grid; break;
+        case 'baixo': cabeca.y += grid; break;
     }
 
-    if (
-        cabeca.x < 0 ||
-        cabeca.x >= largura ||
-        cabeca.y < 0 ||
-        cabeca.y >= altura
-    ) {
+    if (cabeca.x < 0 || cabeca.x >= largura || cabeca.y < 0 || cabeca.y >= altura) {
         alert('Game Over! Sua pontuação: ' + pontuacao);
         resetarJogo();
         return;
     }
 
     for (let parte of cobra) {
-        if (cabeca.x === parte.x && cabeca.y === parte.y) {
+        if (parte.x === cabeca.x && parte.y === cabeca.y) {
             alert('Game Over! Sua pontuação: ' + pontuacao);
             resetarJogo();
             return;
@@ -128,7 +115,7 @@ window.addEventListener('keydown', e => {
     else if (tecla === 'ArrowRight' && direcao !== 'esquerda') direcao = 'direita';
 });
 
-// Controle por toque para celular
+// 🧭 Controle por toque
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -155,6 +142,30 @@ window.addEventListener('touchend', e => {
     }
 }, false);
 
-// Começa o jogo
+// 🧱 Ajuste dinâmico do tamanho do canvas
+function ajustarCanvas() {
+    const tamanho = Math.min(window.innerWidth, window.innerHeight) * 0.9;
+    canvas.style.width = tamanho + 'px';
+    canvas.style.height = tamanho + 'px';
+}
+window.addEventListener('resize', ajustarCanvas);
+ajustarCanvas();
+
+// 🚀 Inicia o jogo
 gerarComida();
 iniciarJogo();
+
+document.getElementById('btnCima').addEventListener('click', () => {
+    if (direcao !== 'baixo') direcao = 'cima';
+});
+document.getElementById('btnBaixo').addEventListener('click', () => {
+    if (direcao !== 'cima') direcao = 'baixo';
+});
+document.getElementById('btnEsquerda').addEventListener('click', () => {
+    if (direcao !== 'direita') direcao = 'esquerda';
+});
+document.getElementById('btnDireita').addEventListener('click', () => {
+    if (direcao !== 'esquerda') direcao = 'direita';
+});
+
+
