@@ -18,7 +18,7 @@ h1 {
 }
 
 #btnIniciar {
-    background-color: #4CAF50;
+    background-color: #4caf50;
     color: white;
     font-size: 20px;
     padding: 12px 28px;
@@ -31,16 +31,21 @@ h1 {
     display: block;
 }
 
-#btnIniciar:hover {
+#btnIniciar:hover:enabled {
     background-color: #45a049;
     transform: scale(1.05);
 }
 
-#btnIniciar:active {
+#btnIniciar:active:enabled {
     transform: scale(0.98);
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
+#btnIniciar:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+}
 
 #pontuacao {
     margin: 10px 0;

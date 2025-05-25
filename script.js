@@ -3,8 +3,11 @@ const ctx = canvas.getContext('2d');
 
 const somComer = document.getElementById('somComer');
 const somGameOver = document.getElementById('somGameOver');
+const somFundo = document.getElementById('somFundo');
 
-// Ajusta volumes
+const inputNome = document.getElementById('inputNome');
+const btnIniciar = document.getElementById('btnIniciar');
+
 somComer.volume = 0.5;
 somGameOver.volume = 0.5;
 
@@ -24,6 +27,11 @@ let pontuacao = 0;
 
 let velocidade = 200;
 let jogo;
+
+// Habilita/desabilita botão Iniciar baseado no input do nome
+inputNome.addEventListener('input', () => {
+    btnIniciar.disabled = inputNome.value.trim() === '';
+});
 
 function gerarComida() {
     comida.x = Math.floor(Math.random() * (largura / grid)) * grid;
@@ -62,9 +70,11 @@ function gameOver() {
     document.getElementById('btnIniciar').style.display = 'block';
     document.getElementById('game').style.display = 'none';
     document.getElementById('pontuacao').style.display = 'none';
-    document.getElementById('somFundo').pause();
-    document.getElementById('somFundo').currentTime = 0;
+    somFundo.pause();
+    somFundo.currentTime = 0;
 
+    // Mostrar input nome novamente para nova partida
+    inputNome.style.display = 'block';
 }
 
 function atualizar() {
@@ -113,14 +123,16 @@ function gameLoop() {
 function iniciarJogo() {
     if (jogo) clearInterval(jogo);
 
-    // Desbloqueia o som para navegadores
+    // Esconde o input nome e habilita o jogo
+    inputNome.style.display = 'none';
+
+    // Desbloqueia sons para navegadores
     somComer.play().then(() => somComer.pause()).catch(() => { });
     somGameOver.play().then(() => somGameOver.pause()).catch(() => { });
 
     jogo = setInterval(gameLoop, velocidade);
 
-    document.getElementById('somFundo').play();
-
+    somFundo.play();
 }
 
 function ajustarCanvas() {
@@ -198,9 +210,9 @@ window.addEventListener('load', verificarOrientacao);
 
 document.getElementById('game').style.display = 'none';
 document.getElementById('pontuacao').style.display = 'none';
-document.getElementById('btnIniciar').style.display = 'block';
+btnIniciar.disabled = true; // começa desabilitado
 
-document.getElementById('btnIniciar').addEventListener('click', () => {
+btnIniciar.addEventListener('click', () => {
     document.getElementById('btnIniciar').style.display = 'none';
     document.getElementById('game').style.display = 'block';
     document.getElementById('pontuacao').style.display = 'block';
@@ -218,6 +230,9 @@ document.getElementById('btnIniciar').addEventListener('click', () => {
     gerarComida();
     iniciarJogo();
 });
+
+
+
 
 
 
