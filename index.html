@@ -11,6 +11,9 @@
 <body>
     <h1>Jogo da Cobrinha</h1>
 
+    <audio id="somFundo" src="sounds/funny-kids-cartoon-background-music-50-sec-345460.mp3" loop preload="auto"></audio>
+
+
     <button id="btnIniciar" style="padding: 10px 20px; font-size: 18px; margin: 20px;">Iniciar Jogo</button>
     <p id="pontuacao">Pontuação: 0</p>
     <canvas id="game" width="400" height="400"></canvas>
@@ -28,6 +31,9 @@
     <div id="mensagem-orientacao" style="display:none; text-align:center; padding: 30px;">
         <h2>Por favor, gire seu celular para a posição vertical para jogar.</h2>
     </div>
+
+    <audio id="somComer" src="sounds/somComer.mp3" preload="auto"></audio>
+    <audio id="somGameOver" src="sounds/somGameOver.mp3" preload="auto"></audio>
 
 
     <script src="script.js"></script>

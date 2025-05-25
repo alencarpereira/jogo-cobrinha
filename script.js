@@ -1,6 +1,13 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
+const somComer = document.getElementById('somComer');
+const somGameOver = document.getElementById('somGameOver');
+
+// Ajusta volumes
+somComer.volume = 0.5;
+somGameOver.volume = 0.5;
+
 const grid = 20;
 const largura = canvas.width;
 const altura = canvas.height;
@@ -18,7 +25,6 @@ let pontuacao = 0;
 let velocidade = 200;
 let jogo;
 
-// Gera comida em posição aleatória e que não esteja na cobra
 function gerarComida() {
     comida.x = Math.floor(Math.random() * (largura / grid)) * grid;
     comida.y = Math.floor(Math.random() * (altura / grid)) * grid;
@@ -31,7 +37,6 @@ function gerarComida() {
     }
 }
 
-// Desenha o jogo
 function desenhar() {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, largura, altura);
@@ -45,18 +50,23 @@ function desenhar() {
     }
 }
 
-// Função chamada no game over
 function gameOver() {
     clearInterval(jogo);
+
+    somGameOver.play().catch(e => {
+        console.log('Erro ao tocar somGameOver:', e);
+    });
 
     alert('Game Over! Sua pontuação: ' + pontuacao);
 
     document.getElementById('btnIniciar').style.display = 'block';
     document.getElementById('game').style.display = 'none';
     document.getElementById('pontuacao').style.display = 'none';
+    document.getElementById('somFundo').pause();
+    document.getElementById('somFundo').currentTime = 0;
+
 }
 
-// Atualiza a lógica do jogo a cada frame
 function atualizar() {
     let cabeca = { ...cobra[0] };
 
@@ -67,13 +77,11 @@ function atualizar() {
         case 'baixo': cabeca.y += grid; break;
     }
 
-    // Verifica colisão com paredes
     if (cabeca.x < 0 || cabeca.x >= largura || cabeca.y < 0 || cabeca.y >= altura) {
         gameOver();
         return;
     }
 
-    // Verifica colisão com o próprio corpo
     for (let parte of cobra) {
         if (parte.x === cabeca.x && parte.y === cabeca.y) {
             gameOver();
@@ -86,32 +94,41 @@ function atualizar() {
     if (cabeca.x === comida.x && cabeca.y === comida.y) {
         pontuacao++;
         document.getElementById('pontuacao').textContent = 'Pontuação: ' + pontuacao;
+
+        somComer.play().catch(e => {
+            console.log('Erro ao tocar somComer:', e);
+        });
+
         gerarComida();
     } else {
         cobra.pop();
     }
 }
 
-// Desenha e atualiza o jogo em loop
 function gameLoop() {
     atualizar();
     desenhar();
 }
 
-// Inicia o jogo, definindo o intervalo
 function iniciarJogo() {
     if (jogo) clearInterval(jogo);
+
+    // Desbloqueia o som para navegadores
+    somComer.play().then(() => somComer.pause()).catch(() => { });
+    somGameOver.play().then(() => somGameOver.pause()).catch(() => { });
+
     jogo = setInterval(gameLoop, velocidade);
+
+    document.getElementById('somFundo').play();
+
 }
 
-// Ajusta tamanho do canvas para ficar responsivo
 function ajustarCanvas() {
     const tamanho = Math.min(window.innerWidth, window.innerHeight) * 0.9;
     canvas.style.width = tamanho + 'px';
     canvas.style.height = tamanho + 'px';
 }
 
-// Evento para detectar teclas direcionais
 window.addEventListener('keydown', e => {
     const tecla = e.key;
     if (tecla === 'ArrowUp' && direcao !== 'baixo') direcao = 'cima';
@@ -120,7 +137,6 @@ window.addEventListener('keydown', e => {
     else if (tecla === 'ArrowRight' && direcao !== 'esquerda') direcao = 'direita';
 });
 
-// Eventos para toque (mobile)
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -147,7 +163,6 @@ window.addEventListener('touchend', e => {
     }
 }, false);
 
-// Botões para celular (se existirem)
 document.getElementById('btnCima')?.addEventListener('click', () => {
     if (direcao !== 'baixo') direcao = 'cima';
 });
@@ -161,7 +176,6 @@ document.getElementById('btnDireita')?.addEventListener('click', () => {
     if (direcao !== 'esquerda') direcao = 'direita';
 });
 
-// Impede usar o jogo em modo paisagem
 function verificarOrientacao() {
     const orientacaoErrada = window.innerWidth > window.innerHeight;
     const mensagem = document.getElementById('mensagem-orientacao');
@@ -182,12 +196,10 @@ function verificarOrientacao() {
 window.addEventListener('resize', verificarOrientacao);
 window.addEventListener('load', verificarOrientacao);
 
-// Esconde o jogo e pontuação inicialmente, mostra o botão iniciar
 document.getElementById('game').style.display = 'none';
 document.getElementById('pontuacao').style.display = 'none';
 document.getElementById('btnIniciar').style.display = 'block';
 
-// Botão iniciar: reseta e começa o jogo
 document.getElementById('btnIniciar').addEventListener('click', () => {
     document.getElementById('btnIniciar').style.display = 'none';
     document.getElementById('game').style.display = 'block';
@@ -206,6 +218,7 @@ document.getElementById('btnIniciar').addEventListener('click', () => {
     gerarComida();
     iniciarJogo();
 });
+
 
 
 
