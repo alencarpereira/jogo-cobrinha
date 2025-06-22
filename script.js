@@ -140,7 +140,7 @@ function gameOver() {
     alert(`Game Over, ${jogadorNome}! Pontuação final: ${pontuacaoFinal}`);
 
     // Envia dados para o backend
-    fetch("https://seu-app.onrender.com/api/scores", {
+    fetch("https://snake-backend-t7of.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome: jogadorNome, pontuacao: pontuacaoFinal }),
