@@ -140,7 +140,7 @@ function gameOver() {
     alert(`Game Over, ${jogadorNome}! Pontuação final: ${pontuacaoFinal}`);
 
     // Envia dados para o backend
-    fetch("https://snake-backend-1.onrender.com", {
+    fetch("https://snake-backend-1.onrender.com/api/scores", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome: jogadorNome, pontuacao: pontuacaoFinal }),
@@ -169,7 +169,7 @@ function carregarRanking() {
 
     rankingLista.innerHTML = "<li>Carregando ranking...</li>";
 
-    fetch("https://snake-backend-1.onrender.com")
+    fetch("https://snake-backend-1.onrender.com/api/scores/top5")
         .then(res => {
             if (!res.ok) throw new Error("Erro ao carregar ranking");
             return res.json();
